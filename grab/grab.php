@@ -16,7 +16,7 @@ foreach($URL_List as $URL)
   if(mkdir("$calculatedName"))
     {
       echo "\tMKDIR: $calculatedName\n\tDEST: $calculatedName/$calculatedName$extension\n";
-      system("wget \"$URL\" -O \"$calculatedName/$calculatedName$extension\"");
+      system("wget \"$URL\" -O \"downloads/$calculatedName/$calculatedName$extension\"");
     }
   else { echo "ERROR: COULD NOT CREATE DIRECTORY"; }
 }

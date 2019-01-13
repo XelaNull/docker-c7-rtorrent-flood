@@ -41,7 +41,9 @@ RUN adduser rtorrent && \
     echo "echo \"dht = ${DHT_ENABLE}\" >> /home/rtorrent/.rtorrent.rc"; \
     echo "echo \"peer_exchange = ${USE_PEX}\" >> /home/rtorrent/.rtorrent.rc"; \
     echo "echo \"scgi_port = 127.0.0.1:${RTORRENT_SCGI_PORT}\" >> /home/rtorrent/.rtorrent.rc"; \
-    echo "echo \"method.insert = d.get_finished_dir, simple, \\\"cat=${DIR_OUTGOING}/,\$d.custom1=\\\"\" >> /home/rtorrent/.rtorrent.rc"; \
+#    echo "echo \"method.insert = d.get_finished_dir, simple, \\\"cat=${DIR_OUTGOING}/,\$d.custom1=\\\"\" >> /home/rtorrent/.rtorrent.rc"; \
+    echo "echo \"method.insert = d.get_finished_dir, simple, \\\"cat=${DIR_OUTGOING}/\\\"\" >> /home/rtorrent/.rtorrent.rc"; \
+
     echo "/usr/bin/rtorrent"; \
     } | tee /start_rtorrent.sh
 RUN mkdir /home/rtorrent/log && mkdir -p /srv/torrent/.session && \

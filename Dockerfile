@@ -27,40 +27,22 @@ RUN wget https://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz && tar -zxf rarlin
 RUN git clone http://github.com/arfoll/unrarall.git unrarall/ && chmod a+x unrarall/unrarall && cp unrarall/unrarall /usr/local/sbin/     
 # ffmpeg
 RUN wget http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm && yum -y localinstall nux-dextop-*.rpm && yum -y install ffmpeg ffmpeg-devel
-    
+
 # rTorrent config
-RUN adduser rtorrent && { \
-    echo "directory = ${DIR_INCOMING}"; \
-    echo 'session = /srv/torrent/.session'; \
-    echo "port_range = ${RTORRENT_PORT}-${RTORRENT_PORT}"; \
-    echo 'port_random = no'; \
-    echo 'check_hash = yes'; \
-    echo "dht = ${DHT_ENABLE}"; \
-    echo 'dht_port = 6881'; \
-    echo "peer_exchange = ${USE_PEX}"; \
-    echo 'use_udp_trackers = yes'; \
-    echo 'encryption = allow_incoming,try_outgoing,enable_retry'; \
-    echo "scgi_port = 127.0.0.1:${RTORRENT_SCGI_PORT}"; \
-#    echo 'ratio.enable='; \
-    echo "method.insert = d.get_finished_dir, simple, \"cat=${DIR_OUTGOING}/,\$d.custom1=\""; \
-    echo 'method.insert = d.get_data_full_path, simple, "branch=((d.is_multi_file)),((cat,(d.directory))),((cat,(d.directory),/,(d.name)))"'; \
-#    echo 'method.insert = d.move_to_complete, simple, "execute=mkdir,-p,$argument.1=; execute=cp,-rp,$argument.0=,$argument.1=; d.stop=; d.directory.set=$argument.1=; d.start=;d.save_full_session=; execute=rm, -r, $argument.0="'; \
-    echo 'method.insert = d.move_to_complete, simple, "execute=mkdir,-p,$argument.1=; execute=mv,-u,$argument.0=,$argument.1=; d.stop=; d.directory.set=$argument.1=; d.start=;d.save_full_session=;"'; \
-    echo 'method.set_key = event.download.finished,move_complete,"d.move_to_complete=$d.get_data_full_path=,$d.get_finished_dir="'; \
-    echo 'log.open_file = "rtorrent", ~/log/rtorrent.log'; \
-    echo 'log.open_file = "tracker", ~/log/tracker.log'; \
-    echo 'log.open_file = "storage", ~/log/storage.log'; \
-    echo 'log.add_output = "info", "rtorrent"'; \
-    echo 'log.add_output = "critical", "rtorrent"'; \
-    echo 'log.add_output = "error", "rtorrent"'; \
-    echo 'log.add_output = "warn", "rtorrent"'; \
-    echo 'log.add_output = "notice", "rtorrent"'; \
-    echo 'log.add_output = "debug", "rtorrent"'; \
-    echo 'log.add_output = "dht_debug", "tracker"'; \
-    echo 'log.add_output = "tracker_debug", "tracker"'; \
-    echo 'log.add_output = "storage_debug", "storage"'; \
-    } | tee /home/rtorrent/.rtorrent.rc && chown rtorrent:rtorrent /home/rtorrent/.rtorrent.rc && mkdir /home/rtorrent/log && \
-    mkdir /srv/torrent && mkdir /srv/torrent/.session && chmod 775 -R /srv/torrent && chown rtorrent:rtorrent -R /srv/torrent && \
+RUN adduser rtorrent && \
+    { \
+    echo "#!/bin/bash"; \
+    echo "wget -O /home/rtorrent/.rtorrent.rc https://raw.githubusercontent.com/XelaNull/docker-c7-rtorrent-flood/master/rtorrent.rc"
+    echo "echo \"directory = ${DIR_INCOMING}\" >> /home/rtorrent/.rtorrent.rc"; \
+    echo "echo \"port_range = ${RTORRENT_PORT}-${RTORRENT_PORT}\" >> /home/rtorrent/.rtorrent.rc"; \
+    echo "echo \"dht = ${DHT_ENABLE}\" >> /home/rtorrent/.rtorrent.rc"; \
+    echo "echo \"peer_exchange = ${USE_PEX}\" >> /home/rtorrent/.rtorrent.rc"; \
+    echo "echo \"scgi_port = 127.0.0.1:${RTORRENT_SCGI_PORT}\" >> /home/rtorrent/.rtorrent.rc"; \
+    echo "echo \"method.insert = d.get_finished_dir, simple, \\\"cat=${DIR_OUTGOING}/,\$d.custom1=\\\"\" >> /home/rtorrent/.rtorrent.rc"; \
+    echo "/usr/bin/rtorrent"; \
+    } | tee /start_rtorrent.sh
+RUN mkdir /home/rtorrent/log && mkdir -p /srv/torrent/.session && \
+    chmod 775 -R /srv/torrent && chown rtorrent:rtorrent -R /srv/torrent && \
     mkdir ${DIR_INCOMING} && chown apache:rtorrent ${DIR_INCOMING} -R && chmod 775 ${DIR_INCOMING} && \
     mkdir ${DIR_OUTGOING} && chown apache:rtorrent ${DIR_OUTGOING} -R && chmod 775 ${DIR_OUTGOING}        
     
@@ -78,7 +60,7 @@ RUN cd /srv/torrent && git clone https://github.com/jfurrow/flood.git && \
 
 # Compile cksfv
 RUN git clone https://github.com/vadmium/cksfv.git && cd cksfv && ./configure && make && make install
-RUN /gen_sup.sh rtorrent "sudo -u rtorrent /usr/bin/rtorrent" >> /etc/supervisord.conf && \
+RUN /gen_sup.sh rtorrent "sudo -u rtorrent /start_rtorrent.sh" >> /etc/supervisord.conf && \
     /gen_sup.sh flood "sudo -u rtorrent /start_flood.sh" >> /etc/supervisord.conf
 
 RUN echo "0 * * * * rtorrent /usr/local/sbin/unrarall ${DIR_OUTGOING}" > /etc/cron.d/rtorrent && \

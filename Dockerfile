@@ -46,7 +46,7 @@ RUN adduser rtorrent && { \
     echo 'method.insert = d.get_data_full_path, simple, "branch=((d.is_multi_file)),((cat,(d.directory))),((cat,(d.directory),/,(d.name)))"'; \
     echo 'method.insert = d.move_to_complete, simple, "execute=mkdir,-p,$argument.1=; execute=cp,-rp,$argument.0=,$argument.1=; d.stop=; d.directory.set=$argument.1=; d.start=;d.save_full_session=; execute=rm, -r, $argument.0="'; \
     echo 'method.set_key = event.download.finished,move_complete,"d.move_to_complete=$d.get_data_full_path=,$d.get_finished_dir="'; \
-    echo 'log.open_file = "rtorrent", /var/log/rtorrent.log'; \
+    echo 'log.open_file = "rtorrent", ~/log/rtorrent.log'; \
     echo 'log.open_file = "tracker", ~/log/tracker.log'; \
     echo 'log.open_file = "storage", ~/log/storage.log'; \
     echo 'log.add_output = "info", "rtorrent"'; \
@@ -58,7 +58,7 @@ RUN adduser rtorrent && { \
     echo 'log.add_output = "dht_debug", "tracker"'; \
     echo 'log.add_output = "tracker_debug", "tracker"'; \
     echo 'log.add_output = "storage_debug", "storage"'; \
-    } | tee /home/rtorrent/.rtorrent.rc && chown rtorrent:rtorrent /home/rtorrent/.rtorrent.rc && \
+    } | tee /home/rtorrent/.rtorrent.rc && chown rtorrent:rtorrent /home/rtorrent/.rtorrent.rc && mkdir /home/rtorrent/log && \
     mkdir /srv/torrent && mkdir /srv/torrent/.session && chmod 775 -R /srv/torrent && chown rtorrent:rtorrent -R /srv/torrent && \
     mkdir ${DIR_INCOMING} && chown apache:rtorrent ${DIR_INCOMING} -R && chmod 775 ${DIR_INCOMING} && \
     mkdir ${DIR_OUTGOING} && chown apache:rtorrent ${DIR_OUTGOING} -R && chmod 775 ${DIR_OUTGOING}        

@@ -60,8 +60,8 @@ RUN cd /srv/torrent && git clone https://github.com/jfurrow/flood.git && \
 
 # Compile cksfv
 RUN git clone https://github.com/vadmium/cksfv.git && cd cksfv && ./configure && make && make install
-RUN /gen_sup.sh rtorrent "sudo -u rtorrent /start_rtorrent.sh" >> /etc/supervisord.conf && \
-    /gen_sup.sh flood "sudo -u rtorrent /start_flood.sh" >> /etc/supervisord.conf
+RUN /gen_sup.sh rtorrent 15 "sudo -u rtorrent /start_rtorrent.sh" >> /etc/supervisord.conf && \
+    /gen_sup.sh flood 20 "sudo -u rtorrent /start_flood.sh" >> /etc/supervisord.conf
 
 RUN echo "0 * * * * rtorrent /usr/local/sbin/unrarall ${DIR_OUTGOING}" > /etc/cron.d/rtorrent && \
     echo "30 * * * * rtorrent /home/rtorrent/bin/rtcontrol --cron seedtime=+${DELETE_AFTER_HOURS}h is_complete=y [ NOT up=+0 ] --cull --yes" > /etc/cron.d/rtorrent && \

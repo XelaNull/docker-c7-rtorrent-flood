@@ -13,7 +13,7 @@ foreach($URL_List as $URL)
   $name = substr($name,0,strlen($name)-4);
   $calculatedName=calculateName($name);
   echo "$count of ".count($URL_List)." [$URL]\n\tGUESS: ".$calculatedName." [$extension]\n";
-  if(mkdir("$calculatedName"))
+  if(mkdir("downloads/$calculatedName"))
     {
       echo "\tMKDIR: $calculatedName\n\tDEST: $calculatedName/$calculatedName$extension\n";
       system("wget \"$URL\" -O \"downloads/$calculatedName/$calculatedName$extension\"");

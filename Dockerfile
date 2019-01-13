@@ -1,5 +1,5 @@
 FROM c7/lamp:latest
-
+# https://github.com/XelaNull/docker-c7
 ENV TIMEZONE="America/New_York"
 ENV DIR_INCOMING="/var/www/html/incomplete"
 ENV DIR_OUTGOING="/var/www/html/complete"
@@ -21,17 +21,14 @@ RUN { echo '<?php'; \
       echo 'echo "http://$_SERVER[HTTP_HOST]/". $file . "\n<br/>"; }'; echo '?>'; \
     } | tee /var/www/html/scan.php && touch /var/www/html/index.php
 
-# Install rar, unrar
-RUN wget https://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz && \
-    tar -zxf rarlinux-x64-5.5.0.tar.gz && cd rar && cp rar unrar /usr/local/bin/
-# Install unrarall
+# rar, unrar
+RUN wget https://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz && tar -zxf rarlinux-*.tar.gz && cp rar/rar rar/unrar /usr/local/bin/
+# unrarall
 RUN git clone http://github.com/arfoll/unrarall.git unrarall/ && chmod a+x unrarall/unrarall && cp unrarall/unrarall /usr/local/sbin/     
-
-#ffmpeg
-RUN wget http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm && \
-    yum -y localinstall nux-dextop-release-0-5.el7.nux.noarch.rpm && yum -y install ffmpeg ffmpeg-devel
+# ffmpeg
+RUN wget http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm && yum -y localinstall nux-dextop-*.rpm && yum -y install ffmpeg ffmpeg-devel
     
-# rTorrent
+# rTorrent config
 RUN adduser rtorrent && { \
     echo "directory = ${DIR_INCOMING}"; \
     echo 'session = /srv/torrent/.session'; \
@@ -55,22 +52,19 @@ RUN adduser rtorrent && { \
     mkdir ${DIR_OUTGOING} && chown apache:rtorrent ${DIR_OUTGOING} -R && chmod 775 ${DIR_OUTGOING}        
     
 # Install Pyrocore, to get rtcontrol to stop torrents from seeding after xxx days
-RUN cd /home/rtorrent && mkdir -p bin pyroscope && git clone "https://github.com/pyroscope/pyrocore.git" pyroscope && \
+RUN cd /home/rtorrent && mkdir bin && git clone "https://github.com/pyroscope/pyrocore.git" pyroscope/ && \
     chown rtorrent /home/rtorrent -R && sudo -u rtorrent /home/rtorrent/pyroscope/update-to-head.sh 
 
 # NodeJS & npm
 RUN curl -sL https://rpm.nodesource.com/setup_11.x | bash - && yum install -y nodejs
 # flood
-RUN cd /srv/torrent && git clone https://github.com/jfurrow/flood.git && \
-    cd flood && cp config.template.js config.js && \
-    sed -i "s|floodServerHost: '127.0.0.1'|floodServerHost: '0.0.0.0'|g" config.js && \
-    npm install && npm install -g node-gyp && npm install --save semver && npm run build && \
-    adduser flood && chown -R flood:flood /srv/torrent/flood/ && \
+RUN adduser flood && cd /srv/torrent && git clone https://github.com/jfurrow/flood.git && \
+    cd flood && cp config.template.js config.js && sed -i "s|floodServerHost: '127.0.0.1'|floodServerHost: '0.0.0.0'|g" config.js && \
+    npm install && npm install -g node-gyp && npm install --save semver && npm run build && chown -R flood:flood /srv/torrent/flood/ && \
     { echo '#!/bin/bash'; echo 'cd /srv/torrent/flood/ && /usr/bin/npm start'; } | tee /start_flood.sh    
 
 # Compile cksfv
-RUN cd /root && git clone https://github.com/vadmium/cksfv.git && \
-    cd cksfv && ./configure && make && make install
+RUN git clone https://github.com/vadmium/cksfv.git && cd cksfv && ./configure && make && make install
 RUN /gen_sup.sh rtorrent "sudo -u rtorrent /usr/bin/rtorrent" >> /etc/supervisord.conf && \
     /gen_sup.sh flood "sudo -u flood /start_flood.sh" >> /etc/supervisord.conf
 

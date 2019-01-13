@@ -79,7 +79,7 @@ RUN echo "0 * * * * rtorrent /usr/local/sbin/unrarall ${DIR_OUTGOING}" > /etc/cr
     echo "35 * * * * rtorrent /home/rtorrent/bin/rtcontrol --cron seedtime=+${DELETE_AFTER_RATIO_REQ_SEEDTIME}h ratio=+${DELETE_AFTER_RATIO} is_complete=y [ NOT up=+0 ] --cull --yes" >> /etc/cron.d/rtorrent
     
 # Ensure all packages are up-to-date, then fully clean out all cache
-RUN yum -y update && yum clean all && rm -rf /tmp/* && rm -rf /var/tmp/*
+RUN chmod a+x /*.sh && yum -y update && yum clean all && rm -rf /tmp/* && rm -rf /var/tmp/*
 
 # Set to start the supervisor daemon on bootup
 ENTRYPOINT ["/start_supervisor.sh"]

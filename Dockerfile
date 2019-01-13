@@ -32,7 +32,7 @@ RUN wget http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.
 RUN adduser rtorrent && \
     { \
     echo "#!/bin/bash"; \
-    echo "/usr/bin/sleep 30"; \
+    echo "/usr/bin/sleep 15"; \
     echo "cd /home/rtorrent && wget https://raw.githubusercontent.com/XelaNull/docker-c7-rtorrent-flood/master/rtorrent.rc"; \
     echo "rm -rf .rtorrent.rc && mv rtorrent.rc .rtorrent.rc"; \
     echo "echo \"\" >> /home/rtorrent/.rtorrent.rc"; \
@@ -61,12 +61,12 @@ RUN curl -sL https://rpm.nodesource.com/setup_11.x | bash - && yum install -y no
 RUN cd /srv/torrent && git clone https://github.com/jfurrow/flood.git && \
     cd flood && cp config.template.js config.js && sed -i "s|floodServerHost: '127.0.0.1'|floodServerHost: '0.0.0.0'|g" config.js && \
     npm install && npm install -g node-gyp && npm install --save semver && npm run build && chown -R rtorrent:rtorrent /srv/torrent/flood/ && \
-    { echo '#!/bin/bash'; echo '/usr/bin/sleep 30 && cd /srv/torrent/flood/ && /usr/bin/npm start'; } | tee /start_flood.sh    
+    { echo '#!/bin/bash'; echo '/usr/bin/sleep 20 && cd /srv/torrent/flood/ && /usr/bin/npm start'; } | tee /start_flood.sh    
 
 # Compile cksfv
 RUN git clone https://github.com/vadmium/cksfv.git && cd cksfv && ./configure && make && make install
-RUN /gen_sup.sh rtorrent 15 "sudo -u rtorrent /start_rtorrent.sh" >> /etc/supervisord.conf && \
-    /gen_sup.sh flood 20 "sudo -u rtorrent /start_flood.sh" >> /etc/supervisord.conf
+RUN /gen_sup.sh rtorrent "sudo -u rtorrent /start_rtorrent.sh" >> /etc/supervisord.conf && \
+    /gen_sup.sh flood "sudo -u rtorrent /start_flood.sh" >> /etc/supervisord.conf
 
 RUN echo "0 * * * * rtorrent /usr/local/sbin/unrarall ${DIR_OUTGOING}" > /etc/cron.d/rtorrent && \
     echo "30 * * * * rtorrent /home/rtorrent/bin/rtcontrol --cron seedtime=+${DELETE_AFTER_HOURS}h is_complete=y [ NOT up=+0 ] --cull --yes" > /etc/cron.d/rtorrent && \

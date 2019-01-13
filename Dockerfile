@@ -32,7 +32,9 @@ RUN wget http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.
 RUN adduser rtorrent && \
     { \
     echo "#!/bin/bash"; \
-    echo "wget -O /home/rtorrent/.rtorrent.rc https://raw.githubusercontent.com/XelaNull/docker-c7-rtorrent-flood/master/rtorrent.rc"
+    echo "cd /home/rtorrent && wget https://raw.githubusercontent.com/XelaNull/docker-c7-rtorrent-flood/master/rtorrent.rc"; \
+    echo "rm -rf .rtorrent.rc && mv rtorrent.rc .rtorrent.rc"; \
+    echo "echo \"\" >> /home/rtorrent/.rtorrent.rc"; \
     echo "echo \"directory = ${DIR_INCOMING}\" >> /home/rtorrent/.rtorrent.rc"; \
     echo "echo \"port_range = ${RTORRENT_PORT}-${RTORRENT_PORT}\" >> /home/rtorrent/.rtorrent.rc"; \
     echo "echo \"dht = ${DHT_ENABLE}\" >> /home/rtorrent/.rtorrent.rc"; \

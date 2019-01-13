@@ -1,0 +1,25 @@
+session = /srv/torrent/.session
+port_random = no
+check_hash = yes
+dht = disable
+dht_port = 6881
+peer_exchange = no
+use_udp_trackers = yes
+encryption = allow_incoming,try_outgoing,enable_retry
+scgi_port = 127.0.0.1:5000
+method.insert = d.get_finished_dir, simple, "cat=/var/www/html/complete/,$d.custom1="
+method.insert = d.get_data_full_path, simple, "branch=((d.is_multi_file)),((cat,(d.directory))),((cat,(d.directory),/,(d.name)))"
+method.insert = d.move_to_complete, simple, "execute=mkdir,-p,$argument.1=; execute=mv,-u,$argument.0=,$argument.1=; d.stop=; d.directory.set=$argument.1=; d.start=;d.save_full_session=;"
+method.set_key = event.download.finished,move_complete,"d.move_to_complete=$d.get_data_full_path=,$d.get_finished_dir="
+log.open_file = "rtorrent", ~/log/rtorrent.log
+log.open_file = "tracker", ~/log/tracker.log
+log.open_file = "storage", ~/log/storage.log
+log.add_output = "info", "rtorrent"
+log.add_output = "critical", "rtorrent"
+log.add_output = "error", "rtorrent"
+log.add_output = "warn", "rtorrent"
+log.add_output = "notice", "rtorrent"
+log.add_output = "debug", "rtorrent"
+log.add_output = "dht_debug", "tracker"
+log.add_output = "tracker_debug", "tracker"
+log.add_output = "storage_debug", "storage"

@@ -40,7 +40,7 @@ RUN adduser rtorrent && { \
     echo "peer_exchange = ${USE_PEX}"; \
     echo 'use_udp_trackers = yes'; \
     echo 'encryption = allow_incoming,try_outgoing,enable_retry'; \
-    echo "scgi_port = 127.0.0.1:${RTORRENT_SCI_PORT}"; \
+    echo "scgi_port = 127.0.0.1:${RTORRENT_SCGI_PORT}"; \
     echo 'ratio.enable='; \
     echo "method.insert = d.get_finished_dir, simple, \"cat=${DIR_OUTGOING}/,\$d.custom1=\""; \
     echo 'method.insert = d.get_data_full_path, simple, "branch=((d.is_multi_file)),((cat,(d.directory))),((cat,(d.directory),/,(d.name)))"'; \

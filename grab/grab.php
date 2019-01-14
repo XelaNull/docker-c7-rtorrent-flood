@@ -11,14 +11,19 @@ foreach($URL_List as $URL)
   // Remove the extension
   $extension = substr($name,strlen($name)-4,4);
   $name = substr($name,0,strlen($name)-4);
-  $calculatedName=calculateName($name);
+  $calculatedName=calculateName($name); $dirName=$calculatedName;
   echo "$count of ".count($URL_List)." [$URL]\n\tGUESS: ".$calculatedName." [$extension]\n";
-  if(mkdir("downloads/$calculatedName"))
+  // Determine if this is a TV Episode, so we can remove season and episode from dirname
+  if(preg_match("'^(.+)S([0-9]+)E([0-9]+)*'i",$dirName,$n))
     {
-      echo "\tMKDIR: $calculatedName\n\tDEST: $calculatedName/$calculatedName$extension\n";
-      system("wget \"$URL\" -O \"downloads/$calculatedName/$calculatedName$extension\"");
+      $seasonepisode_string=trim(substr($n[0],strrpos($n[0],' ')));
+      $dirName=str_replace(" $seasonepisode_string","",$dirName);
     }
-  else { echo "ERROR: COULD NOT CREATE DIRECTORY"; }
+  
+  if(!file_exists("$dirName")) mkdir("$dirName");
+    
+  echo "\tDEST: $dirName/$calculatedName$extension\n";
+  system("wget -q --progress=bar:force:noscroll --show-progress \"$URL\" -O \"$dirName/$calculatedName$extension\"");
 }
 
 
@@ -30,15 +35,10 @@ function calculateName($currentName)
   @$space_count=substr_count($sanitizedName, ' ');
   @$period_count=substr_count($sanitizedName, '.');
   
-  // If there are no spaces in the name, convert periods to spaces
-  if (dotYear_present($currentName) && $period_count>$space_count) 
-    { $sanitizedName=str_replace('.',' ',$sanitizedName); cleaner_log("NOSPACES-REMOVED: [$sanitizedName]\n",2); }
-  cleaner_log("calculateName1: sanitizedName[$sanitizedName]",3);
-  
-  // Remove characters that shouldn't be presen in a name, and replace with space
-  $sanitizedName=removeCharacters($sanitizedName);
-  cleaner_log("calculateName2: periods:$period_count spaces:$space_count sanitizedName[$sanitizedName]",3);
 
+  
+  // We need to loop through STRIP_AFTER_WORDS before we convert . to spaces
+  //   otherwise, the filter matching won't work properly
   $word_position='';
   // Strip the name after any of the following words
   foreach($STRIP_AFTER_WORDS as $word)
@@ -47,10 +47,39 @@ function calculateName($currentName)
         {
           $word_position=strpos(strtolower($sanitizedName),strtolower($word));
           $sanitizedName=substr($sanitizedName,0,$word_position);
-          cleaner_log("calculateName2.5: STRIP-at-WORD: [$word]; RESULT: [$sanitizedName]",2);
+          cleaner_log("calculateName0.5: STRIP-at-WORD: [$word]; RESULT: [$sanitizedName]",2);
         }
     }
-  cleaner_log("calculateName3: sanitizedName[$sanitizedName]",3);
+  cleaner_log("calculateName1: sanitizedName[$sanitizedName]",3);  
+  
+  // If there are no spaces in the name, convert periods to spaces
+  if (/*dotYear_present($currentName) &&*/ $period_count>$space_count && $period_count>1) 
+    { $sanitizedName=str_replace('.',' ',$sanitizedName); cleaner_log("NOSPACES-REMOVED: [$sanitizedName]\n",2); }
+  cleaner_log("calculateName2: sanitizedName[$sanitizedName]",3);
+  
+  /*
+  // We should look for the TV indicator of S__E__ or s__e__
+  $season=''; $episode=''; $seasonepisode_string='';
+  if(preg_match("'^(.+)S([0-9]+)E([0-9]+)*'i",$sanitizedName,$n))
+    {
+      $last_space_position=strrpos($n[0],' '); 
+      $seasonepisode_string=substr($n[0],$last_space_position);
+      $season=$n[2]; $episode=$n[3];
+      cleaner_log("calculateName0: TV EPISODE DETECTED1: S[$season]E[$episode] name:[$seasonepisode_string] sanitizedName: $sanitizedName",2);
+
+    }
+  if ($season!='' && $episode!='')
+  {
+    $movieformat='TV';
+    $strip_from_position=strpos($sanitizedName,$seasonepisode_string);
+    $sanitizedName=substr($sanitizedName,0,$strip_from_position);
+    cleaner_log("calculateName0: TV EPISODE DETECTED2: S[$season]E[$episode] name:[$seasonepisode_string] sanitizedName: $sanitizedName",2);
+  }
+  */
+  
+  // Remove characters that shouldn't be presen in a name, and replace with space
+  $sanitizedName=removeCharacters($sanitizedName);
+  cleaner_log("calculateName3: periods:$period_count spaces:$space_count sanitizedName[$sanitizedName]",3);
                         
   // Remove any double spaces and then trim the filename
   while(strpos($sanitizedName,'  ')!==false) $sanitizedName=str_replace('  ',' ',$sanitizedName); # Remove any double spaces
@@ -59,7 +88,7 @@ function calculateName($currentName)
   foreach($REMOVE_WORDS as $word) $sanitizedName=trim(str_replace($word,' ',$sanitizedName));
   cleaner_log("calculateName4: sanitizedName[$sanitizedName]",3);
   
-  
+  return(trim($sanitizedName));
 
   // Check with IMDB Name, then rebuild Filename from IMDB Name + IMDB Year + Resolution
   $calculatedName=queryIMDB_Loop($sanitizedName,$currentName);
@@ -68,7 +97,7 @@ function calculateName($currentName)
   if(!format_present($calculatedName) && format_present($currentName)!='')
     {
       $resolution=format_present($currentName);
-      if($resolution!='') $calculatedName="$calculatedName $resolution";
+      if($resolution!='') $calculatedName=trim($calculatedName).$seasonepisode_string.' '.trim($resolution);
     }
   
   return(trim($calculatedName));
@@ -113,7 +142,8 @@ function defineConfig()
   # Case insensitive
   $STRIP_AFTER_WORDS=array('HDR','bluray', 'DVDRip', 'bdrip', 'divx', 'internal', 'repack', 'proper', 
     'Dvd', 'limited', 'xvid', 'AC3', 'HDRip', 'HDTV', 'DVDScr', 'WEBRip', '10bit', 'hevc', 
-    'HDTVRip', 'DVDR', 'WEBrip', 'HC', '.MULTI', 'PL.DUAL', 'WEB-DL','.V2','.web','AMZN','REMUX');
+    'HDTVRip', 'DVDR', 'WEBrip', 'HC', '.MULTI', 'PL.DUAL', 'WEB-DL','.V2','.web','AMZN','REMUX',
+    '.REAL');
   # Case sensitive
   $REMOVE_WORDS=array('DVDRip','BDRip','BRRip','BRrip','BRRIP','HDRip','H264','x264-x0r','x264','h264',
     'X264','XviD','XviDHD','Xvid','XViD', 'DC', '5.1', 'AAC','HDR',
@@ -144,20 +174,25 @@ global $DEBUG,$movieFormats;
 $result=''; $first_word=''; $last_word=''; $query_strings='';
 $origFilename=$simpleFilename;
 
+cleaner_log("queryIMDB_Loop: Before Attempt #1",2);
+
 $query_strings="\"$simpleFilename\" "; $result=queryIMDB($simpleFilename); // ATTEMPT #1
+
+cleaner_log("queryIMDB_Loop: After Attempty #1",2);
 if (@strpos($result,'UNKNOWN')!==FALSE) // ATTEMPT #2
   {
   $last_space_position=strrpos($simpleFilename, ' '); $last_word=trim(substr($simpleFilename, $last_space_position));
   $tempFilename=trim(substr($simpleFilename,0,$last_space_position));
   if ($tempFilename != '') { $query_strings.="\"$tempFilename\" "; $result=queryIMDB($tempFilename); }
   }
+cleaner_log("queryIMDB_Loop: After Attempty #2",2);
 if (strpos($result,'UNKNOWN')!==FALSE) // ATTEMPT #3
   {
     $first_space_position=strpos($tempFilename, ' '); $first_word=trim(substr($tempFilename, 0, $first_space_position));
     $tempFilename=trim(substr($tempFilename,$first_space_position));
     if ($tempFilename != '') { $query_strings.="\"$tempFilename\" "; $result=queryIMDB($tempFilename); }
   }
-
+cleaner_log("queryIMDB_Loop: After Attempty #3",2);
 // Reformat the result
 if (strpos($result,'UNKNOWN')===FALSE) 
   {
@@ -166,7 +201,7 @@ if (strpos($result,'UNKNOWN')===FALSE)
    else $simpleFilename=$first_word.' '.removeCharacters($result);
   }
 else { cleaner_log("!!!!!!!!!!IMDB FAILURE [$simpleFilename]!!!!!!!!",-1); cleaner_log("$origFilename",-3); }
-cleaner_log("queryIMDB: $query_strings = $result<br>\n",1); return(trim($simpleFilename));  
+cleaner_log("queryIMDB_Loop Result: $query_strings = $result<br>\n",1); return(trim($simpleFilename));  
 }
 
 
@@ -175,10 +210,15 @@ function queryIMDB($title,$year=NULL,$type='feature',$loopcount=NULL)
   global $DEBUG, $TITLE_ACCEPTABLE_SIMILARITY_PERCENT;
   defineConfig(); $loopcount++;
   if($type!='feature' || $type!='tv') $type='feature';
-  // Attempt to extract the year from the title string, if it was not provided separately
-  if($year=='') { preg_match("/[0-9][0-9](91|02)*./",strrev($title),$Match); if(@$Match[0]!='') { $year=trim(strrev($Match[0])); } }
   
-  cleaner_log("queryIMDB: $title",3);
+  cleaner_log("queryIMDB1: $title | year: [$year]",3);
+
+  
+  // Attempt to extract the year from the title string, if it was not provided separately
+//  if($year=='') { preg_match("/[0-9][0-9](91|02)*./",strrev($title),$Match); if(@$Match[0]!='') { $year=trim(strrev($Match[0])); } }
+  if($year=='') { preg_match("/[0-9][0-9][0-9][0-9]*./",strrev($title),$Match); if(@$Match[0]!='') { $year=trim(strrev($Match[0])); } }
+  
+  cleaner_log("queryIMDB2: $title | year: [$year]",3);
   
   # If there are two years present in the title name, we can assume the last is the one we want to remove. 
   # In this rare situation, we should only remove the last year.

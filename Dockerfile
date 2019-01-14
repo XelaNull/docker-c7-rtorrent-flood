@@ -15,10 +15,10 @@ ENV USE_PEX="no"
 RUN yum -y install perl make gcc-c++ rsync nc openssh screen unzip rtorrent file mediainfo
 
 # Drop in place the PHP file to scan for completed files to provide the URL to
-RUN printf '<?php \n$display = Array ("img","mp4","avi","mkv","m2ts","wmv","iso","divx","mpg","m4v");\n\
-foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(basename("${DIR_OUTGOING}"))) as $file)\n\
-{ if(basename($file)==".." || basename($file)=="." || strpos(strtolower($file),"sample")!==FALSE) continue;\n\
-if (in_array(strtolower(array_pop(explode(".", $file))), $display)) echo "http://$_SERVER[HTTP_HOST]/$file\n<br/>";\n' >> /var/www/html/scan.php && \
+RUN printf '<?php \n$display = Array ("img","mp4","avi","mkv","m2ts","wmv","iso","divx","mpg","m4v");\n' > /var/www/html/scan.php && \
+    echo "foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(basename(\"${DIR_OUTGOING}\"))) as \$file)" >> /var/www/html/scan.php && \
+    printf '{ if(basename($file)==".." || basename($file)=="." || strpos(strtolower($file),"sample")!==FALSE) continue;\n\
+if (in_array(strtolower(array_pop(explode(".", $file))), $display)) echo "http://$_SERVER[HTTP_HOST]/$file<br/>"; }\n' >> /var/www/html/scan.php && \
     touch /var/www/html/index.php
 
 # rar, unrar
@@ -26,7 +26,7 @@ RUN wget https://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz && tar -zxf rarlin
 # unrarall
     git clone http://github.com/arfoll/unrarall.git unrarall/ && chmod a+x unrarall/unrarall && cp unrarall/unrarall /usr/local/sbin/ && \
 # ffmpeg
-    yum -y localinstall http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm && yum -y install ffmpeg ffmpeg-devel
+#    yum -y localinstall http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm && yum -y install ffmpeg ffmpeg-devel
 
 # rTorrent config
 RUN adduser rtorrent && mkdir /home/rtorrent/log && mkdir -p /srv/torrent/.session && \

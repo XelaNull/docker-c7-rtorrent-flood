@@ -12,7 +12,8 @@ foreach($URL_List as $URL)
   $extension = substr($name,strlen($name)-4,4);
   $name = substr($name,0,strlen($name)-4);
   $calculatedName=calculateName($name); $dirName=$calculatedName;
-  echo "$count of ".count($URL_List)." [$URL]\n\tGUESS: ".$calculatedName." [$extension]\n";
+  echo "$count of ".count($URL_List)." [$URL]\n";
+  //echo "\tGUESS: ".$calculatedName." [$extension]\n";
   // Determine if this is a TV Episode, so we can remove season and episode from dirname
   if(preg_match("'^(.+)S([0-9]+)E([0-9]+)*'i",$dirName,$n))
     {
@@ -20,11 +21,12 @@ foreach($URL_List as $URL)
       $dirName=str_replace(" $seasonepisode_string","",$dirName);
     }
   
-  if(!file_exists("$dirName")) mkdir("$dirName");
+  if(!file_exists("$dirName")) { echo "\tMKDIR: $dirName\n"; mkdir("$dirName"); }
     
-  echo "\tDEST: $dirName/$calculatedName$extension\n";
-  echo "wget -qc --progress=bar:force:noscroll -O \"$dirName/$calculatedName$extension\" \"$URL\"\n";
-  system("wget -qc --progress=bar:force:noscroll -O \"$dirName/$calculatedName$extension\" \"$URL\"");
+  //echo "\tDEST: $dirName/$calculatedName$extension\n";
+  echo "wget -c -O \"$dirName/$calculatedName$extension\" \"$URL\"\n";
+  system("wget -c -O \"$dirName/$calculatedName$extension\" \"$URL\"");
+  echo "\tWROTE: ".number_format((filesize("$dirName/$calculatedName$extension"))/1024/1024)."MB\n";
 }
 
 

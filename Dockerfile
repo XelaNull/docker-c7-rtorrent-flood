@@ -34,14 +34,15 @@ RUN adduser rtorrent && mkdir /home/rtorrent/log && mkdir -p /srv/torrent/.sessi
     mkdir ${DIR_INCOMING} && chown apache:rtorrent ${DIR_INCOMING} -R && chmod 775 ${DIR_INCOMING} && \
     mkdir ${DIR_OUTGOING} && chown apache:rtorrent ${DIR_OUTGOING} -R && chmod 775 ${DIR_OUTGOING} && \
     printf '#!/bin/bash\n/usr/bin/sleep 15\ncd /home/rtorrent && wget https://raw.githubusercontent.com/XelaNull/docker-c7-rtorrent-flood/master/rtorrent.rc\n\
-rm -rf .rtorrent.rc && mv rtorrent.rc .rtorrent.rc\necho \"\" >> /home/rtorrent/.rtorrent.rc\n\
-echo "directory = ${DIR_INCOMING}" >> /home/rtorrent/.rtorrent.rc\n\
-echo "port_range = ${RTORRENT_PORT}-${RTORRENT_PORT}" >> /home/rtorrent/.rtorrent.rc\n\
-echo "dht = ${DHT_ENABLE}" >> /home/rtorrent/.rtorrent.rc\n\
-echo "peer_exchange = ${USE_PEX}" >> /home/rtorrent/.rtorrent.rc\n\
-echo "scgi_port = 127.0.0.1:${RTORRENT_SCGI_PORT}" >> /home/rtorrent/.rtorrent.rc\n\
-echo "method.insert = d.get_finished_dir, simple, \\\"cat=${DIR_OUTGOING}/\\\" >> /home/rtorrent/.rtorrent.rc\n\
-/usr/bin/rtorrent' > /start_rtorrent.sh
+rm -rf .rtorrent.rc && mv rtorrent.rc .rtorrent.rc\n\
+cat <<EOT >> /home/rtorrent/.rtorrent.rc\n' > /start_rtorrent.sh && \
+    echo "directory = ${DIR_INCOMING}" >> /start_rtorrent.sh && \
+    echo "port_range = ${RTORRENT_PORT}-${RTORRENT_PORT}" >> /start_rtorrent.sh && \
+    echo "dht = ${DHT_ENABLE}" >> /start_rtorrent.sh && \
+    echo "peer_exchange = ${USE_PEX}" >> /start_rtorrent.sh && \
+    echo "scgi_port = 127.0.0.1:${RTORRENT_SCGI_PORT}" >> /start_rtorrent.sh && \
+    echo "method.insert = d.get_finished_dir, simple, \"cat=${DIR_OUTGOING}/\"" >> /start_rtorrent.sh
+    printf 'EOT\n/usr/bin/rtorrent' >> /start_rtorrent.sh
     
 # Install Pyrocore, to get rtcontrol to stop torrents from seeding after xxx days
 RUN cd /home/rtorrent && mkdir bin && git clone "https://github.com/pyroscope/pyrocore.git" pyroscope/ && \

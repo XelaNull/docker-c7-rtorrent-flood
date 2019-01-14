@@ -23,8 +23,8 @@ foreach($URL_List as $URL)
   if(!file_exists("$dirName")) mkdir("$dirName");
     
   echo "\tDEST: $dirName/$calculatedName$extension\n";
-  echo "wget -q --progress=bar:force:noscroll --show-progress \"$URL\" -O \"$dirName/$calculatedName$extension\"\n";
-  system("wget -q --progress=bar:force:noscroll --show-progress \"$URL\" -O \"$dirName/$calculatedName$extension\"");
+  echo "wget -qc --progress=bar:force:noscroll -O \"$dirName/$calculatedName$extension\" \"$URL\"\n";
+  system("wget -qc --progress=bar:force:noscroll -O \"$dirName/$calculatedName$extension\" \"$URL\"");
 }
 
 

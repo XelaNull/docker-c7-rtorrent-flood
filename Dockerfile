@@ -18,7 +18,7 @@ RUN yum -y install perl make gcc-c++ rsync nc openssh screen unzip rtorrent file
 RUN printf '<?php \n$display = Array ("img","mp4","avi","mkv","m2ts","wmv","iso","divx","mpg","m4v");\n' > /var/www/html/scan.php && \
     echo "foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(basename(\"${DIR_OUTGOING}\"))) as \$file)" >> /var/www/html/scan.php && \
     printf '{ if(basename($file)==".." || basename($file)=="." || strpos(strtolower($file),"sample")!==FALSE) continue;\n\
-if (in_array(strtolower(array_pop(explode(".", $file))), $display)) echo "http://$_SERVER[HTTP_HOST]/$file<br/>"; }\n' >> /var/www/html/scan.php && \
+if (in_array(strtolower(array_pop(explode(".", $file))), $display)) echo "http://$_SERVER[HTTP_HOST]/$file<br/>\n"; }\n' >> /var/www/html/scan.php && \
     touch /var/www/html/index.php
 
 # rar, unrar

@@ -33,7 +33,7 @@ RUN adduser rtorrent && mkdir /home/rtorrent/log && mkdir -p /srv/torrent/.sessi
     chmod 775 -R /srv/torrent && chown rtorrent:rtorrent -R /srv/torrent && \
     mkdir ${DIR_INCOMING} && chown apache:rtorrent ${DIR_INCOMING} -R && chmod 775 ${DIR_INCOMING} && \
     mkdir ${DIR_OUTGOING} && chown apache:rtorrent ${DIR_OUTGOING} -R && chmod 775 ${DIR_OUTGOING} && \
-    printf '#!/bin/bash\n/usr/bin/sleep 15\ncd /home/rtorrent && wget https://raw.githubusercontent.com/XelaNull/docker-c7-rtorrent-flood/master/rtorrent.rc\n\
+    printf '#!/bin/bash\n/usr/bin/sleep 1\ncd /home/rtorrent && wget https://raw.githubusercontent.com/XelaNull/docker-c7-rtorrent-flood/master/rtorrent.rc\n\
 rm -rf .rtorrent.rc && mv rtorrent.rc .rtorrent.rc\n\
 cat <<EOT >> /home/rtorrent/.rtorrent.rc\n\n' > /start_rtorrent.sh && \
     echo "directory = ${DIR_INCOMING}" >> /start_rtorrent.sh && \
@@ -55,7 +55,7 @@ RUN curl -sL https://rpm.nodesource.com/setup_11.x | bash - && yum install -y no
 RUN cd /srv/torrent && git clone https://github.com/jfurrow/flood.git && \
     cd flood && cp config.template.js config.js && sed -i "s|floodServerHost: '127.0.0.1'|floodServerHost: '0.0.0.0'|g" config.js && \
     npm install && npm install -g node-gyp && npm install --save semver && npm run build && chown -R rtorrent:rtorrent /srv/torrent/flood/ && \
-    printf '#!/bin/bash\n/usr/bin/sleep 20 && cd /srv/torrent/flood/ && /usr/bin/npm start\n' > /start_flood.sh    
+    printf '#!/bin/bash\n/usr/bin/sleep 2 && cd /srv/torrent/flood/ && /usr/bin/npm start\n' > /start_flood.sh    
 
 # Compile cksfv
 RUN git clone https://github.com/vadmium/cksfv.git && cd cksfv && ./configure && make && make install

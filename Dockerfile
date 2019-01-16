@@ -33,8 +33,8 @@ RUN adduser rtorrent && mkdir /home/rtorrent/log && mkdir -p /srv/torrent/.sessi
     chmod 775 -R /srv/torrent && chown rtorrent:rtorrent -R /srv/torrent && \
     mkdir ${DIR_INCOMING} && chown apache:rtorrent ${DIR_INCOMING} -R && chmod 775 ${DIR_INCOMING} && \
     mkdir ${DIR_OUTGOING} && chown apache:rtorrent ${DIR_OUTGOING} -R && chmod 775 ${DIR_OUTGOING} && \
-    printf '#!/usr/bin/env sh\nset -x\ncd /home/rtorrent && wget https://raw.githubusercontent.com/XelaNull/docker-c7-rtorrent-flood/master/rtorrent.rc\n\
-rm -rf .rtorrent.rc && mv rtorrent.rc .rtorrent.rc\n\
+    printf '#!/bin/bash\ncd /home/rtorrent && wget https://raw.githubusercontent.com/XelaNull/docker-c7-rtorrent-flood/master/rtorrent.rc\n\
+rm -rf .rtorrent.rc && mv rtorrent.rc .rtorrent.rc && chown rtorrent:rtorrent .rtorrent.rc\n\
 cat <<EOT >> /home/rtorrent/.rtorrent.rc\n\n' > /start_rtorrent.sh && \
     echo "directory = ${DIR_INCOMING}" >> /start_rtorrent.sh && \
     echo "port_range = ${RTORRENT_PORT}-${RTORRENT_PORT}" >> /start_rtorrent.sh && \
@@ -62,7 +62,7 @@ RUN cd /srv/torrent && git clone https://github.com/jfurrow/flood.git && \
 
 # Compile cksfv
 RUN git clone https://github.com/vadmium/cksfv.git && cd cksfv && ./configure && make && make install
-RUN /gen_sup.sh rtorrent "runuser -l rtorrent -c /start_rtorrent.sh" >> /etc/supervisord.conf && \
+RUN /gen_sup.sh rtorrent "/start_rtorrent.sh" >> /etc/supervisord.conf && \
     /gen_sup.sh flood "runuser -l rtorrent -c /start_flood.sh" >> /etc/supervisord.conf
 
 RUN printf '0 * * * * rtorrent /usr/local/sbin/unrarall ${DIR_OUTGOING}\n\

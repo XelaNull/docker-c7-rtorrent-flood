@@ -1,9 +1,7 @@
 session = /srv/torrent/.session
 port_random = no
 check_hash = yes
-dht = disable
 dht_port = 6881
-peer_exchange = no
 use_udp_trackers = yes
 encryption = allow_incoming,try_outgoing,enable_retry
 method.insert = d.get_data_full_path, simple, "branch=((d.is_multi_file)),((cat,(d.directory))),((cat,(d.directory),/,(d.name)))"

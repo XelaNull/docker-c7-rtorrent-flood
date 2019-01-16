@@ -58,7 +58,7 @@ RUN curl -sL https://rpm.nodesource.com/setup_11.x | bash - && yum install -y no
 RUN cd /srv/torrent && git clone https://github.com/jfurrow/flood.git && \
     cd flood && cp config.template.js config.js && sed -i "s|floodServerHost: '127.0.0.1'|floodServerHost: '0.0.0.0'|g" config.js && \
     npm install && npm install -g node-gyp && npm install --save semver && npm run build && chown -R rtorrent:rtorrent /srv/torrent/flood/ && \
-    printf '#!/bin/bash\n/usr/bin/sleep 2 && cd /srv/torrent/flood/ && /usr/bin/npm start\n' > /start_flood.sh    
+    printf '#!/bin/bash\ncd /srv/torrent/flood/ && /usr/bin/npm start\n' > /start_flood.sh    
 
 # Compile cksfv
 RUN git clone https://github.com/vadmium/cksfv.git && cd cksfv && ./configure && make && make install

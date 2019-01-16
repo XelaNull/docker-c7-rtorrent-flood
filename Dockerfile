@@ -43,7 +43,10 @@ cat <<EOT >> /home/rtorrent/.rtorrent.rc\n\n' > /start_rtorrent.sh && \
     echo "scgi_port = 127.0.0.1:${RTORRENT_SCGI_PORT}" >> /start_rtorrent.sh && \
     echo "method.insert = d.get_finished_dir, simple, \"cat=${DIR_OUTGOING}/\"" >> /start_rtorrent.sh && \
     printf 'EOT\n' >> /start_rtorrent.sh && \
-    printf 'while true; do\nsu --login --command="TERM=xterm rtorrent" rtorrent\n/usr/bin/sleep 5\ndone' >> /start_rtorrent.sh
+    printf 'while true; do\nrunuser -l rtorrent -c "/usr/bin/rtorrent"\n/usr/bin/sleep 5\ndone' >> /start_rtorrent.sh
+# screen -S rtorrent rtorrent 
+# su - rtorrent -c 'screen -d -m /usr/bin/rtorrent' &> /dev/null
+# runuser -l rtorrent -c "/usr/bin/rtorrent"
 
 # Install Pyrocore, to get rtcontrol to stop torrents from seeding after xxx days
 RUN cd /home/rtorrent && mkdir bin && git clone "https://github.com/pyroscope/pyrocore.git" pyroscope/ && \

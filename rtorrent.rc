@@ -19,4 +19,5 @@ log.add_output = "debug", "rtorrent"
 log.add_output = "dht_debug", "tracker"
 log.add_output = "tracker_debug", "tracker"
 log.add_output = "storage_debug", "storage"
+network.xmlrpc.size_limit.set = 2000000
 # line intentionally left blank

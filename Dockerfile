@@ -50,7 +50,7 @@ cat <<EOT >> /home/rtorrent/.rtorrent.rc\n\n' > /start_rtorrent.sh && \
 
 # Install Pyrocore, to get rtcontrol to stop torrents from seeding after xxx days
 RUN cd /home/rtorrent && mkdir bin && git clone "https://github.com/pyroscope/pyrocore.git" pyroscope/ && \
-    chown rtorrent /home/rtorrent -R && sudo -u rtorrent /home/rtorrent/pyroscope/update-to-head.sh 
+    chown rtorrent /home/rtorrent -R && runuser -l rtorrent -c /home/rtorrent/pyroscope/update-to-head.sh 
 
 # NodeJS & npm
 RUN curl -sL https://rpm.nodesource.com/setup_11.x | bash - && yum install -y nodejs
@@ -62,8 +62,8 @@ RUN cd /srv/torrent && git clone https://github.com/jfurrow/flood.git && \
 
 # Compile cksfv
 RUN git clone https://github.com/vadmium/cksfv.git && cd cksfv && ./configure && make && make install
-RUN /gen_sup.sh rtorrent "sudo -u rtorrent /start_rtorrent.sh" >> /etc/supervisord.conf && \
-    /gen_sup.sh flood "sudo -u rtorrent /start_flood.sh" >> /etc/supervisord.conf
+RUN /gen_sup.sh rtorrent "runuser -l rtorrent -c /start_rtorrent.sh" >> /etc/supervisord.conf && \
+    /gen_sup.sh flood "runuser -l rtorrent -c /start_flood.sh" >> /etc/supervisord.conf
 
 RUN printf '0 * * * * rtorrent /usr/local/sbin/unrarall ${DIR_OUTGOING}\n\
 30 * * * * rtorrent /home/rtorrent/bin/rtcontrol --cron seedtime=+${DELETE_AFTER_HOURS}h is_complete=y [ NOT up=+0 ] --cull --yes\n\

@@ -33,7 +33,7 @@ RUN adduser rtorrent && mkdir /home/rtorrent/log && mkdir -p /srv/torrent/.sessi
     chmod 775 -R /srv/torrent && chown rtorrent:rtorrent -R /srv/torrent && \
     mkdir ${DIR_INCOMING} && chown apache:rtorrent ${DIR_INCOMING} -R && chmod 775 ${DIR_INCOMING} && \
     mkdir ${DIR_OUTGOING} && chown apache:rtorrent ${DIR_OUTGOING} -R && chmod 775 ${DIR_OUTGOING} && \
-    printf '#!/bin/bash\n/usr/bin/sleep 1\ncd /home/rtorrent && wget https://raw.githubusercontent.com/XelaNull/docker-c7-rtorrent-flood/master/rtorrent.rc\n\
+    printf '#!/usr/bin/env sh\nset -x\ncd /home/rtorrent && wget https://raw.githubusercontent.com/XelaNull/docker-c7-rtorrent-flood/master/rtorrent.rc\n\
 rm -rf .rtorrent.rc && mv rtorrent.rc .rtorrent.rc\n\
 cat <<EOT >> /home/rtorrent/.rtorrent.rc\n\n' > /start_rtorrent.sh && \
     echo "directory = ${DIR_INCOMING}" >> /start_rtorrent.sh && \
@@ -43,7 +43,7 @@ cat <<EOT >> /home/rtorrent/.rtorrent.rc\n\n' > /start_rtorrent.sh && \
     echo "scgi_port = 127.0.0.1:${RTORRENT_SCGI_PORT}" >> /start_rtorrent.sh && \
     echo "method.insert = d.get_finished_dir, simple, \"cat=${DIR_OUTGOING}/\"" >> /start_rtorrent.sh && \
     printf 'EOT\n' >> /start_rtorrent.sh && \
-    printf 'while true; do\n/usr/bin/rtorrent\n/usr/bin/sleep 5\ndone' >> /start_rtorrent.sh
+    printf 'while true; do\nsu --login --command="TERM=xterm rtorrent" rtorrent\n/usr/bin/sleep 5\ndone' >> /start_rtorrent.sh
 
 # Install Pyrocore, to get rtcontrol to stop torrents from seeding after xxx days
 RUN cd /home/rtorrent && mkdir bin && git clone "https://github.com/pyroscope/pyrocore.git" pyroscope/ && \

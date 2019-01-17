@@ -7,7 +7,9 @@ if($argv[1]!='') // a CLI argument was passed, so the script was called from the
   }
 elseif($_GET['IPPORT']!='')
   {
-    $parts=explode(':',htmlspeciachars($_GET['IPPORT'])); $IP=(int)$parts[0];$PORT=(int)$parts[1];    
+    $parts=explode(':',htmlspeciachars($_GET['IPPORT'])); $IP=$parts[0];$PORT=(int)$parts[1];  
+    // Add validation to ensure IP address matches reg_ex (we are protected by Typecasting on Port)
+    if (!preg_match('/^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:[.](?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}$/',$IP)) { exit "Invalid IP address."; }  
   }
 else 
   {

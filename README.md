@@ -22,7 +22,7 @@ This project's rTorrent is set up so that when you initially add a .torrent to t
 
 If you wish to remove this extraction behavior, I've provided an alternate configuration line in the rtorrent.rc file in this project. Just comment out the line above it, and then uncomment the alternate configuration line and then rTorrent will not extract the rar files but simply move the torrent data as-is from incomplete to complete. Please be aware that scan.php will NOT expose the URLs of rar files, so if you disable automatic extraction of rar files, and you are using scan.php, you will need to modify the extension list that scan.php exposes to include your rar files.
 
-### DHT & PEX Disabled!
+### DHT & PEX Disabled, by default!
 
 DHT & PEX are disabled at the top of this project's Dockerfile. This ultimately means this project's Seedbox is intended to use with private trackers. However, if you are determined to use this on a public tracker, you can adjust the two variables within the Dockerfile accordingly:
 

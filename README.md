@@ -22,6 +22,13 @@ This project's rTorrent is set up so that when you initially add a .torrent to t
 
 If you wish to remove this extraction behavior, I've provided an alternate configuration line in the rtorrent.rc file in this project. Just comment out the line above it, and then uncomment the alternate configuration line and then rTorrent will not extract the rar files but simply move the torrent data as-is from incomplete to complete. Please be aware that scan.php will NOT expose the URLs of rar files, so if you disable automatic extraction of rar files, and you are using scan.php, you will need to modify the extension list that scan.php exposes to include your rar files.
 
+### DHT & PEX Disabled!
+
+DHT & PEX are disabled at the top of this project's Dockerfile. This ultimately means this project's Seedbox is intended to use with private trackers. However, if you are determined to use this on a public tracker, you can adjust the two variables within the Dockerfile accordingly:
+
+- DHT_ENABLE="enable"
+- USE_PEX="yes"
+
 ## To download your torrent data
 
 There are three ways that you can download your torrent data:
@@ -83,7 +90,7 @@ The only ports this project expose are:
 
 - TCP port 3000 : Used for the Flood Web UI. This is your primary port for managing your torrents.
 - TCP port 8080 : Used to access and download torrent data. This is not needed if you download your torrent data directly from Flood's web UI.
-- TCP port 50000 : Needed for rTorrent communications inbound/outbound with the world. This exact port can be adjusted in the configuration, if needed.
+- TCP port 50000 : Needed for rTorrent communications inbound/outbound with the world. This exact port can be adjusted at the top of this project's Dockerfile, if needed.
 
 --------------------------------------------------------------------------------
 

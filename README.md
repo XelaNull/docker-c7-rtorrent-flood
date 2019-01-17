@@ -65,22 +65,38 @@ I've provided a Dockerfile for grab, but frankly, I've found that running grab.p
 
 This package is reliant upon my docker-c7 project. As such, you will need to build the docker-c7 project before building this one. I've created a simple one-liner script to take care of building and running both projects with their default options. This results in an rTorrent+Flood instance that is ready for you to log in and use.
 
-## TO BUILD & RUN THIS PROJECT:
+## TO BUILD & RUN THIS PROJECT AS A ONE-LINER:
+
+1. Ensure you have install git & docker to your Linux server
+2. Run the script below to build and run this Dockerfile:
 
 ```
 curl -o latest -L https://raw.githubusercontent.com/XelaNull/docker-c7-rtorrent-flood/master/latest && sh latest
 ```
 
-When the script finishes, your Docker image will be started and you should immediately be able to access it via port 8080 at your IP address. <http://YOURIP:8080> The login and password you provide on your first login attempt will be created as your administrative account and can be reused afterwards. For the rTorrent configuration use: IP: 127.0.0.1 Port: 5000
+1. Access your new instance at: <http://YOURIP:8080>
+
+  - The login and password you provide on your first login attempt will be created as your administrative account and can be reused afterwards.
+  - For the rTorrent configuration use: IP: 127.0.0.1 Port: 5000
 
 The only ports this project expose are:
 
 - TCP port 3000 : Used for the Flood Web UI. This is your primary port for managing your torrents.
-- TCP port 8080 : Used to access and download
+- TCP port 8080 : Used to access and download torrent data. This is not needed if you download your torrent data directly from Flood's web UI.
+- TCP port 50000 : Needed for rTorrent communications inbound/outbound with the world. This exact port can be adjusted in the configuration, if needed.
 
 --------------------------------------------------------------------------------
 
-## **To Build:**
+## TO BUILD, RUN, and ENTER THIS PROJECT MANUALLY
+
+### **BUILD the c7/lamp Dockerfile:**
+
+```
+git clone https://github.com/XelaNull/docker-c7.git
+cd docker-c7 && docker build -t c7/lamp .
+```
+
+### **BUILD the c7/rtorrent-flood Dockerfile:**
 
 ```
 docker build -t c7/rtorrent-flood .
@@ -88,13 +104,15 @@ docker build -t c7/rtorrent-flood .
 
 - You may need to add 1GB Swap to your build host via: dd if=/dev/zero of=/swapfile bs=1024 count=1048576 && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
 
-## **To Run:**
+## **To RUN:**
 
 ```
 docker run -dt -p8080:80 -p3000:3000 -p50000:50000 --name=rtorrent-flood c7/rtorrent-flood
 ```
 
-## **To Enter:**
+- No volumes are mounted outside of this, as the expectation as that you should use HTTP URL to download torrent data. Please see above.
+
+## **To ENTER:**
 
 ```
 docker exec -it rtorrent-flood bash

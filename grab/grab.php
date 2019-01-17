@@ -7,7 +7,7 @@ if($argv[1]!='') // a CLI argument was passed, so the script was called from the
   }
 elseif($_GET['IPPORT']!='')
   {
-    $parts=explode(':',htmlspeciachars($_GET['IPPORT'])); $IP=$parts[0];$PORT=$parts[1];    
+    $parts=explode(':',htmlspeciachars($_GET['IPPORT'])); $IP=(int)$parts[0];$PORT=(int)$parts[1];    
   }
 else 
   {

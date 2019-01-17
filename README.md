@@ -20,7 +20,7 @@ rtcontrol is an extremely powerful back-end addition to rTorrent that allows a w
 
 This project's rTorrent is set up so that when you initially add a .torrent to the Flood web interface, it will start the download into /var/www/html/incomplete. This path is accessible via your web browser at: <http://YOURIP:8080/incomplete>. When the torrent download is completed, the entire torrent download is moved to /var/www/html/complete, where it will continue seeding until the time or ratio requirements are met. This path is also accessible via your web browser at: <http://YOURIP:8080/complete>. At the time your torrent is moved from incomplete to complete directory, rTorrent will call the "unrarall" command to automatically extract any rar files within this torrent.
 
-If you wish to remove this extraction behavior, I've provided an alternate configuration line in the rtorrent.rc file in this project. Just comment out the line above it, and then uncomment the alternate configuration line and then rTorrent will not extract the rar files but simply move the torrent data as-is from incomplete to complete.
+If you wish to remove this extraction behavior, I've provided an alternate configuration line in the rtorrent.rc file in this project. Just comment out the line above it, and then uncomment the alternate configuration line and then rTorrent will not extract the rar files but simply move the torrent data as-is from incomplete to complete. Please be aware that scan.php will NOT expose the URLs of rar files, so if you disable automatic extraction of rar files, and you are using scan.php, you will need to modify the extension list that scan.php exposes to include your rar files.
 
 ## To download your torrent data
 

@@ -12,7 +12,7 @@ foreach($URL_List as $URL)
   $extension = substr($name,strlen($name)-4,4);
   $name = substr($name,0,strlen($name)-4);
   $calculatedName=calculateName($name); $dirName=$calculatedName;
-  echo "$count of ".count($URL_List)." [$URL]\n";
+  echo "$count of ".count($URL_List)." ";
   //echo "\tGUESS: ".$calculatedName." [$extension]\n";
   // Determine if this is a TV Episode, so we can remove season and episode from dirname
   if(preg_match("'^(.+)S([0-9]+)E([0-9]+)*'i",$dirName,$n))
@@ -37,8 +37,6 @@ function calculateName($currentName)
   
   @$space_count=substr_count($sanitizedName, ' ');
   @$period_count=substr_count($sanitizedName, '.');
-  
-
   
   // We need to loop through STRIP_AFTER_WORDS before we convert . to spaces
   //   otherwise, the filter matching won't work properly

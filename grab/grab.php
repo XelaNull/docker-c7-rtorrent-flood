@@ -1,35 +1,75 @@
 <?php
-$parts=explode(':',$argv[1]);$IP=$parts[0];$PORT=$parts[1];
+include "sanitize.php";
 
+if($argv[1]!='') // a CLI argument was passed, so the script was called from the command line
+  {
+    $parts=explode(':',$argv[1]);$IP=$parts[0];$PORT=$parts[1];
+  }
+elseif($_GET['IPPORT']!='')
+  {
+    $parts=explode(':',htmlspeciachars($_GET['IPPORT'])); $IP=$parts[0];$PORT=$parts[1];    
+  }
+else 
+  {
+  echo "No IP:PORT provided. You can either provide this as a CLI argument or an HTTP GET variable.\n";
+  echo "Example: php grab.php 111.222.333.444:8080\n";
+  echo "Example: http://YOURIP/grab.php?IPPORT=111.222.333.444:8080\n\n";
+  echo "This script will download the remote torrent data into the current directory that the script is running from."
+  }
+
+// If you wish this script to store the downloaded torrent data to a different directory, specify it here
+$PREPEND_PATH='./';
+
+// There generally should not be a reason to modify anything below.
+
+// Download the list of remote URL stored by rTorrent+Flood
 $HTML=file_get_contents("http://$IP:$PORT/scan.php");
+// Convert the list to an array that we can loop through
 $URL_List=explode(PHP_EOL,str_replace('<br/>','',$HTML));
 echo "Looping through ".count($URL_List)." URLs...\n";
 $count=0;
+// Loop through the list of URLs to download
 foreach($URL_List as $URL)
 { if($URL=='') continue; $count++;
+  // Determine just the base filename (ignoring the URL path)
   $name=basename($URL); 
-  // Remove the extension
+  // Determine the file extension
   $extension = substr($name,strlen($name)-4,4);
+  // Determine the filename without the extension
   $name = substr($name,0,strlen($name)-4);
-  $calculatedName=calculateName($name); $dirName=$calculatedName;
+  // Call sanitizeName to calculate new name
+  $calculatedName=sanitizeName($name); $dirName=$calculatedName;
   echo "$count of ".count($URL_List)." ";
+  // Display the name returned by sanitizeName()
   //echo "\tGUESS: ".$calculatedName." [$extension]\n";
+
   // Determine if this is a TV Episode, so we can remove season and episode from dirname
   if(preg_match("'^(.+)S([0-9]+)E([0-9]+)*'i",$dirName,$n))
     {
+      // This *IS* a TV episode, so we should remove the Season and Episode from the directory name
       $seasonepisode_string=trim(substr($n[0],strrpos($n[0],' ')));
       $dirName=str_replace(" $seasonepisode_string","",$dirName);
     }
-  
+  // If the directory does not already exist, we should create it
   if(!file_exists("$dirName")) { echo "\tMKDIR: $dirName\n"; mkdir("$dirName"); }
     
+  // Display the directory and name that we will be writing this out to locally
   //echo "\tDEST: $dirName/$calculatedName$extension\n";
-  echo "wget -c -O \"$dirName/$calculatedName$extension\" \"$URL\"\n";
-  system("wget -c -O \"$dirName/$calculatedName$extension\" \"$URL\"");
+  
+  // Display the exact wget call being made (which shows the local filepath)
+  echo "wget -c -O \"$PREPEND_PATH$dirName/$calculatedName$extension\" \"$URL\"\n";
+  // Make the system call to wget with -c option, to make it more rsync-like
+  // This command also writes out the file to its new directory and filename. 
+  system("wget -c -O \"$PREPEND_PATH$dirName/$calculatedName$extension\" \"$URL\"");
+  // Display how many MB we've written locally for this file
   echo "\tWROTE: ".number_format((filesize("$dirName/$calculatedName$extension"))/1024/1024)."MB\n";
 }
+echo "Completed looping through $count URLs..\n"
 
 
+
+
+/*
 function calculateName($currentName)
 {
   global $DEBUG, $REMOVE_WORDS, $STRIP_AFTER_WORDS;
@@ -54,7 +94,7 @@ function calculateName($currentName)
   cleaner_log("calculateName1: sanitizedName[$sanitizedName]",3);  
   
   // If there are no spaces in the name, convert periods to spaces
-  if (/*dotYear_present($currentName) &&*/ $period_count>$space_count && $period_count>1) 
+  if ($period_count>$space_count && $period_count>1) 
     { $sanitizedName=str_replace('.',' ',$sanitizedName); cleaner_log("NOSPACES-REMOVED: [$sanitizedName]\n",2); }
   cleaner_log("calculateName2: sanitizedName[$sanitizedName]",3);
   
@@ -77,6 +117,8 @@ function calculateName($currentName)
     cleaner_log("calculateName0: TV EPISODE DETECTED2: S[$season]E[$episode] name:[$seasonepisode_string] sanitizedName: $sanitizedName",2);
   }
   */
+  
+  /*
   
   // Remove characters that shouldn't be presen in a name, and replace with space
   $sanitizedName=removeCharacters($sanitizedName);
@@ -343,6 +385,6 @@ function downloadRemoteFile($url, $dest)
   if ($return === false) return curl_error($ch);
   else return true;
 }
-
+*/
 
 ?>

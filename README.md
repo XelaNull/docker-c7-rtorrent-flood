@@ -124,3 +124,5 @@ docker run -dt -p8080:80 -p3000:3000 -p50000:50000 --name=rtorrent-flood c7/rtor
 ```
 docker exec -it rtorrent-flood bash
 ```
+
+<https://github.com/XelaNull/docker-c7-rtorrent-flood>

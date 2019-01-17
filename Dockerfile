@@ -25,8 +25,6 @@ if (in_array(strtolower(array_pop(explode(".", $file))), $display)) echo "http:/
 RUN wget https://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz && tar -zxf rarlinux-*.tar.gz && cp rar/rar rar/unrar /usr/local/bin/ && \
 # unrarall
     git clone http://github.com/arfoll/unrarall.git unrarall/ && chmod a+x unrarall/unrarall && cp unrarall/unrarall /usr/local/sbin/ 
-# ffmpeg
-#    yum -y localinstall http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm && yum -y install ffmpeg ffmpeg-devel
 
 # rTorrent config
 RUN adduser rtorrent && mkdir /home/rtorrent/log && mkdir -p /srv/torrent/.session && \

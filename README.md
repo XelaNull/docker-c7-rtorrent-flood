@@ -64,7 +64,7 @@ This package is reliant upon my docker-c7 project. As such, you will need to bui
 ## To build the docker-c7 & docker-c7-rtorrent-flood projects
 
 ```
-curl -o latest -L https://raw.githubusercontent.com/XelaNull/docker-c7/master/latest && sh latest
+curl -o latest -L https://raw.githubusercontent.com/XelaNull/docker-c7-rtorrent-flood/master/latest && sh latest
 ```
 
 When the script finishes, your Docker image will be started and you should immediately be able to access it via port 8080 at your IP address. <http://YOURIP:8080> The login and password you provide on your first login attempt will be created as your administrative account and can be reused afterwards. For the rTorrent configuration use: IP: 127.0.0.1 Port: 5000

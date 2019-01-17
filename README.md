@@ -39,6 +39,10 @@ There is a PHP script at <http://YOURIP:8080/scan.php> that will provide you a o
 
 In the future, I may convert the output of this script to JSON to better match modern standards.
 
+**It is important to emphasize here that scan.php will only "expose" URLs for the file extensions above. So if your torrent has OTHER files present in them (say a .exe file for example), scan.php by default will not show this file URL to download.**
+
+If you know you will want extensions OTHER than what is listed above, you should modify the extension lists within the file of your running Docker image: /var/www/html/scan.php
+
 ## **grab.php**
 
 I needed a way to download all completed torrent data easily with one-command. Clicking around in a web-interface to download each torrent individually just will not meet my need. So I created a separate script that can be run from any machine capable of running PHP, that will contact the rTorrent+Flood server via HTTP URL and will automatically download all completed torrent data to this separate server running grab.php. This way, I can set up an automated job to run on a separate server and execute this grab.php and download any completed torrent data from the rTorrent+Flood server.
@@ -61,7 +65,7 @@ I've provided a Dockerfile for grab, but frankly, I've found that running grab.p
 
 This package is reliant upon my docker-c7 project. As such, you will need to build the docker-c7 project before building this one. I've created a simple one-liner script to take care of building and running both projects with their default options. This results in an rTorrent+Flood instance that is ready for you to log in and use.
 
-## To build the docker-c7 & docker-c7-rtorrent-flood projects
+## TO BUILD & RUN THIS PROJECT:
 
 ```
 curl -o latest -L https://raw.githubusercontent.com/XelaNull/docker-c7-rtorrent-flood/master/latest && sh latest

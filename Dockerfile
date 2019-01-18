@@ -44,8 +44,8 @@ cat <<EOT >> /home/rtorrent/.rtorrent.rc\n\n' > /start_rtorrent.sh && \
     printf 'while true; do\nrunuser -l rtorrent -c "/usr/bin/rtorrent"\n/usr/bin/sleep 5\ndone' >> /start_rtorrent.sh
 
 # Install Pyrocore, to get rtcontrol to stop torrents from seeding after xxx days
-RUN cd /home/rtorrent && mkdir bin && git clone "https://github.com/pyroscope/pyrocore.git" pyroscope/ && \
-    chown rtorrent /home/rtorrent -R && sudo -u rtorrent /home/rtorrent/pyroscope/update-to-head.sh 
+#RUN cd /home/rtorrent && mkdir bin && git clone "https://github.com/pyroscope/pyrocore.git" pyroscope/ && \
+#    chown rtorrent /home/rtorrent -R && sudo -u rtorrent /home/rtorrent/pyroscope/update-to-head.sh 
 
 # NodeJS & npm
 RUN curl -sL https://rpm.nodesource.com/setup_11.x | bash - && yum install -y nodejs

@@ -12,7 +12,7 @@ ENV DELETE_AFTER_RATIO_REQ_SEEDTIME="12"
 ENV DHT_ENABLE="disable"
 ENV USE_PEX="no"
 
-RUN yum -y install perl make gcc-c++ rsync nc openssh screen unzip rtorrent file mediainfo
+RUN yum -y install perl make gcc-c++ nc openssh unzip rtorrent file mediainfo
 
 # Drop in place the PHP file to scan for completed files to provide the URL to
 RUN printf '<?php \n$display = Array ("img","mp4","avi","mkv","m2ts","wmv","iso","divx","mpg","m4v");\n' > /var/www/html/scan.php && \

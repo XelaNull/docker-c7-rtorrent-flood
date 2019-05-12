@@ -81,7 +81,7 @@ This package is reliant upon my docker-c7 project. As such, you will need to bui
 curl -o latest -L https://raw.githubusercontent.com/XelaNull/docker-c7-rtorrent-flood/master/latest && sh latest
 ```
 
-1. Access your new instance at: <http://YOURIP:8080>
+1. Access your new instance at: <http://YOURIP:3000>
 
   - The login and password you provide on your first login attempt will be created as your administrative account and can be reused afterwards.
   - For the rTorrent configuration use: IP: 127.0.0.1 Port: 5000
